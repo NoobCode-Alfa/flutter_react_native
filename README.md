@@ -6,7 +6,7 @@
 
 Make sure your app is already integrated with Flutter and React Native, you can read how to integrate with Flutter [here](https://docs.flutter.dev/add-to-app) and React Native [here](https://reactnative.dev/docs/integration-with-existing-apps).
 
-Or if you can see full [example code here](https://github.com/NoobCode-Alfa/flutter_react_native_example) 
+Or you can see full [example code here](https://github.com/NoobCode-Alfa/flutter_react_native_example) 
 
 ### Flutter
 
