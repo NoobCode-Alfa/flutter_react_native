@@ -6,7 +6,7 @@
 
 Make sure your app is already integrated with Flutter and React Native, you can read how to integrate with Flutter [here](https://docs.flutter.dev/add-to-app) and React Native [here](https://reactnative.dev/docs/integration-with-existing-apps).
 
-Or if you can see full [example code here]() 
+Or if you can see full [example code here](https://github.com/NoobCode-Alfa/flutter_react_native_example) 
 
 ### Flutter
 
@@ -61,10 +61,10 @@ FlutterReactNative.call(
 
 ### Flutter
 
-To define a function, use the `define` method of the `FLutterModule` object. The first argument is the name of the function, and the second argument is an asynchronous function that takes in parameters and returns a value if needed.
+To define a function, use the `define` method of the `FlutterModule` object. The first argument is the name of the function, and the second argument is an asynchronous function that takes in parameters and returns a value if needed.
 
 ```dart
-FLutterModule.define("function name", (params) async {
+FlutterModule.define("function name", (params) async {
   // Logic here with return value if needed
 });
 ```
