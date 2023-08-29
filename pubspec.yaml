@@ -1,7 +1,7 @@
 name: flutter_react_native
 description: A new Flutter plugin project.
 version: 0.0.1
-# homepage: null
+repository: https://github.com/NoobCode-Alfa/flutter_react_native
 
 environment:
   sdk: ">=3.0.1 <4.0.0"
