@@ -1,6 +1,6 @@
 name: flutter_react_native
 description: Bridging to call React Native Function from flutter to develop Micro FrontEnd.
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/NoobCode-Alfa/flutter_react_native
 
 environment:

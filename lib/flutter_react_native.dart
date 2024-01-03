@@ -4,16 +4,17 @@ import 'package:uuid/uuid.dart';
 class FlutterReactNative {
   static MethodChannel reactChannel =
       const MethodChannel("flutter_react_native");
-  static List<Map<String, Function>> methodQueue = [];
+  static List<QueueData> queue = [];
   static bool _initialized = false;
-  
+
   static _init() {
     reactChannel.setMethodCallHandler((call) async {
       switch (call.method) {
         case "reactNativeCallback":
-          for (var queue in methodQueue) {
-            if (queue.keys.first == call.arguments["requestId"]) {
-              queue.values.first.call(call.arguments["value"]);
+          for (var queueData in queue) {
+            if (queueData.requestId == call.arguments["requestId"]) {
+              queueData.value = call.arguments["value"];
+              queueData.finish = true;
             }
           }
           break;
@@ -24,21 +25,17 @@ class FlutterReactNative {
     _initialized = true;
   }
 
-  static call(
+  static Future<dynamic> call(
       {required String method,
       dynamic params,
-      Function(dynamic value)? callback}) {
+      bool returningValue = false}) async {
     if (!_initialized) {
       _init();
     }
 
     String requestId = const Uuid().v4().toString();
-    if (callback != null) {
-      methodQueue.add(
-        {
-          requestId: callback,
-        },
-      );
+    if (returningValue) {
+      queue.add(QueueData(requestId: requestId));
     }
 
     reactChannel.invokeMethod("reactNativeChannel", {
@@ -46,5 +43,23 @@ class FlutterReactNative {
       "method": method,
       "params": params,
     });
+
+    if (returningValue) {
+      while (!queue
+          .firstWhere((element) => element.requestId == requestId)
+          .finish) {
+        await Future.delayed(const Duration(seconds: 1));
+      }
+      return queue
+          .firstWhere((element) => element.requestId == requestId)
+          .value;
+    }
   }
+}
+
+class QueueData {
+  String requestId;
+  dynamic value;
+  bool finish;
+  QueueData({required this.requestId, this.value, this.finish = false});
 }

@@ -15,6 +15,11 @@ class RNShare(reactContext: ReactApplicationContext) : ReactContextBaseJavaModul
     fun callback(options : ReadableMap) {
         Handler(Looper.getMainLooper()).post(Runnable {
             FlutterReactNativePlugin.reactChannel.invokeMethod("reactNativeCallback", options.toHashMap())
+            FlutterReactNativePlugin.processCount--
+            if(FlutterReactNativePlugin.processCount==0)
+            {
+                FlutterReactNativePlugin.finishRequest()
+            }
         })
     }
 

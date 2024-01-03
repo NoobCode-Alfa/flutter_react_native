@@ -24,7 +24,6 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 /** FlutterReactNativePlugin */
 class FlutterReactNativePlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var reactInstanceManager: ReactInstanceManager
-    private lateinit var parentView: ViewGroup;
 
     private lateinit var context: Context
     private lateinit var activity: Activity
@@ -32,6 +31,16 @@ class FlutterReactNativePlugin : FlutterPlugin, MethodCallHandler, ActivityAware
     companion object {
         lateinit var reactChannel: MethodChannel;
         lateinit var flutterChannel: MethodChannel;
+
+        private lateinit var parentView: ViewGroup;
+        private lateinit var reactRootView: ReactRootView;
+
+        var processCount: Int = 0;
+
+        fun finishRequest(){
+            parentView = ((reactRootView.parent as? ViewGroup)!!)
+            parentView.removeView(reactRootView)
+        }
     }
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -42,11 +51,12 @@ class FlutterReactNativePlugin : FlutterPlugin, MethodCallHandler, ActivityAware
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         if (call.method == "reactNativeChannel") {
-            var reactRootView = ReactRootView(context)
+            reactRootView = ReactRootView(context)
             val bundle = paramBuilder(call.arguments as java.io.Serializable)
             bundle.putSerializable("type", "module")
             reactRootView.startReactApplication(reactInstanceManager, "reactModule", bundle)
             parentView.addView(reactRootView, 0)
+            processCount++;
         } else if (call.method == "flutterCallback") {
             var reactRootView = ReactRootView(context)
             val bundle = paramBuilder(call.arguments as java.io.Serializable)
@@ -78,38 +88,39 @@ class FlutterReactNativePlugin : FlutterPlugin, MethodCallHandler, ActivityAware
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        activity = binding.activity
-        context = binding.activity.applicationContext
+        try{
+            activity = binding.activity
+            context = binding.activity.applicationContext
 
-        // React Native Setup
-        SoLoader.init(context, false)
+            // React Native Setup
+            SoLoader.init(context, false)
 
-//        reactRootView = ReactRootView(context)
-//        reactRootView.unmountReactApplication()
+    //        reactRootView = ReactRootView(context)
+    //        reactRootView.unmountReactApplication()
 
-        var packages: List<ReactPackage> =
-            PackageList(activity.application).packages.apply { add(MyReactPackage()) }
+            var packages: List<ReactPackage> =
+                PackageList(activity.application).packages.apply { add(MyReactPackage()) }
 
-        reactInstanceManager = ReactInstanceManager.builder()
-            .setApplication(activity.application)
-            .setCurrentActivity(activity)
-            .setBundleAssetName("index.android.bundle")
-            .setJSMainModulePath("index")
-            .addPackages(packages)
-            .setUseDeveloperSupport(BuildConfig.DEBUG)
-            .setInitialLifecycleState(LifecycleState.RESUMED)
-            .build()
+            reactInstanceManager = ReactInstanceManager.builder()
+                .setApplication(activity.application)
+                .setCurrentActivity(activity)
+                .setBundleAssetName("index.android.bundle")
+                .setJSMainModulePath("index")
+                .addPackages(packages)
+                .setUseDeveloperSupport(BuildConfig.DEBUG)
+                .setInitialLifecycleState(LifecycleState.RESUMED)
+                .build()
 
-        val lp = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        )
+            val lp = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            reactRootView = ReactRootView(context)
 
-        var reactRootView = ReactRootView(context)
-
-        activity.addContentView(reactRootView, lp)
-        parentView = ((reactRootView.parent as? ViewGroup)!!)
-        parentView.removeView(reactRootView)
+            activity.addContentView(reactRootView, lp)
+            parentView = ((reactRootView.parent as? ViewGroup)!!)
+            parentView.removeView(reactRootView)
+        } catch (ex: Exception) { }
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
