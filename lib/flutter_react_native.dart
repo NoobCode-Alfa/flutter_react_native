@@ -33,6 +33,8 @@ class FlutterReactNative {
       _init();
     }
 
+    await SystemChannels.textInput.invokeMethod('TextInput.hide');
+
     String requestId = const Uuid().v4().toString();
     if (returningValue) {
       queue.add(QueueData(requestId: requestId));
